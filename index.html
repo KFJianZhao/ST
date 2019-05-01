@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.13/moment-timezone-with-data-2012-2022.min.js"></script>
+	<script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+	<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<title>Title of the document</title>
+
+</head>
+
+<body>
+	
+	<div id="container" style="height: 50%; min-width: 310px"></div>
+	
+</body>
+
+<script type="text/javascript">
+
+
+
+Highcharts.chart('container', {
+              time: {
+                  timezone: 'America/New_York'
+              }
+          });
+// console.log(
+//         'Current time in New York',
+//         chart.time.dateFormat('%Y-%m-%d %H:%M:%S', Date.now())
+//     );
+
+(function() {
+	//const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=5min&apikey=demo';
+	const url = 'https://www.highcharts.com/samples/data/aapl-ohlcv.json' ;
+	$.getJSON(url, function (data) {
+		
+// split the data set into ohlc and volume
+	var ohlc = [],
+	volume = [],
+	dataLength = data.length,
+	// set the allowed units for data grouping
+	groupingUnits = [[
+		'week',             // unit name
+		[1]               // allowed multiples
+	], [
+		'month',
+		[1, 2, 3, 4, 6]
+	]],
+
+	i = 0;
+
+	for (i; i < dataLength; i += 1) {
+	ohlc.push([
+		data[i][0], // the date
+		data[i][1], // open
+		data[i][2], // high
+		data[i][3], // low
+		data[i][4] // close
+	]);
+
+	// volume.push([
+	// 	data[i][0], // the date
+	// 	data[i][5] // the volume
+	// ]);
+	}
+	// create the chart
+	var chart = Highcharts.stockChart('container', {
+		chart: {
+    	    backgroundColor: '#FCFFC5',
+			type: 'line',
+			height: '80%',
+    	},
+		time: {
+        	timezone: 'America/New_York'
+    	},
+		rangeSelector: {
+			selected: 1
+		},
+		title: {
+			text: 'AAPL Historical'
+		},
+		yAxis: [{
+			labels: {
+				align: 'right',
+				x: -3
+			},
+			title: {
+				text: 'OHLC'
+			},
+			height: "70%",
+			width:"100%",
+			lineWidth: 1,
+			resize: {
+				enabled: true
+			}
+		}
+		// , {
+		// 	labels: {
+		// 	align: 'right',
+		// 	x: -3
+		// 	},
+		// 	title: {
+		// 	text: 'Volume'
+		// 	},
+		// 	top: '65%',
+		// 	height: '35%',
+		// 	offset: 0,
+		// 	lineWidth: 2
+		// }
+	],
+
+		tooltip: {
+			split: true
+		},
+
+		series: [{
+			type: 'candlestick',
+			name: 'AAPL',
+			data: ohlc,
+			dataGrouping: {
+				units: groupingUnits
+			}
+		}
+		// , {
+		// 	type: 'column',
+		// 	name: 'Volume',
+		// 	data: volume,
+		// 	yAxis: 1,
+		// 	dataGrouping: {
+		// 	units: groupingUnits
+		// 	}
+		// }
+	]
+		});
+	
+	console.log("chart is: ",chart );
+	console.log(chart.time.dateFormat('%Y-%m-%d %H:%M:%S', Date.now()));
+});
+})(); // Function END
+</script>
+
+</html>
